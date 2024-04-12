@@ -2,6 +2,7 @@ import prisma from "../DataBase/db.config.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { generateAccessAndRefreshToken, hashPassword, isPasswordCorrect } from "../utils/user.functions.js";
 
 
@@ -24,12 +25,26 @@ const registerUser = asyncHandler(async (req, res) => {
 
     const hashedPassword = await hashPassword(password);
 
+    const avatarLocalPath = req.files?.avatar[0]?.path;
+    const coverLocalPath = req.files?.coverImage[0]?.path;
+
+    console.log(avatarLocalPath);
+    console.log(coverLocalPath)
+
+    let [avatar, coverImage] = await Promise.all([uploadOnCloudinary(avatarLocalPath), uploadOnCloudinary(coverLocalPath)]);
+
+    console.log(avatar.url);
+    console.log(coverImage.url)
+
+ 
     const registeredUser = await prisma.user.create({
         data: {
             username,
             fullname,
             email,
-            password:hashedPassword,
+            password: hashedPassword,
+            avatar: avatar.url || "",
+            coverImage:coverImage.url || "",
             role
         }
     })
@@ -109,5 +124,138 @@ const loginUser = asyncHandler(async (req, res) => {
     )
 })
 
-export { loginUser, registerUser };
+const profileDetails = asyncHandler(async (req, res) => {
+    const { id } = req.user;
+
+    const user = await prisma.user.findUnique({
+        where: {
+            id
+        },
+        select: {
+            id: true,
+            username: true,
+            fullname: true,
+            email: true,
+            avatar: true,
+            coverImage: true,
+            role:true
+        }
+    })
+
+    
+    if (!user) {
+        throw new ApiError(400,"User not found")
+    }
+
+    return res.status(200)
+        .json(
+            new ApiResponse(
+                200,
+                user,
+                "User profile fetched successfully"
+        )
+    )
+})
+
+const updateProfile = asyncHandler(async (req, res) => {
+    const { id } = req.user;
+
+    console.log(req?.body?.username);
+    console.log(req?.body?.email);
+    console.log(req?.body?.fullname);
+    console.log(req?.body?.role);
+
+    const updatedUser = await prisma.user.update({
+        where: {
+            id
+        },
+        data: {
+            username: req?.body?.username,
+            email: req?.body?.email,
+            fullname: req?.body?.fullname,
+            role:req?.body?.role
+        },
+        select: {
+            id: true,
+            username: true,
+            fullname: true,
+            email: true,
+            avatar: true,
+            coverImage: true,
+            role:true
+        }
+    })
+
+    return res.status(200)
+        .json(
+            new ApiResponse(
+                200,
+                updatedUser,
+                "Successfully updated user information"
+        )
+    )
+})
+
+const updateProfileImages = asyncHandler(async (req, res) => {
+    const { id } = req.user;
+    const avatarLocalFilePath = req.files?.avatar[0]?.path;
+    const coverLocalFilePath = req.files?.coverImage[0]?.path;
+    
+
+    //If user want to updated only avatar or coverImage then only upload Image on cloudinary else update with previous image urls 
+    if (avatarLocalFilePath) {
+        var avatar = await uploadOnCloudinary(avatarLocalFilePath);
+    }
+
+    if (coverLocalFilePath) {
+        var coverImage = await uploadOnCloudinary(coverLocalFilePath);
+    }
+
+    const upadatedUser = await prisma.user.update({
+        where: {
+            id
+        },
+        data: {
+            avatar: avatar.url || req.user?.avatar,
+            coverImage: coverImage.url || req.user?.coverImage
+        },
+        select: {
+            username: true,
+            avatar: true,
+            coverImage:true
+        }
+    })
+
+    return res.status(200)
+        .json(
+            new ApiResponse(
+                200,
+                upadatedUser,
+                "User profile pictures updated successfully"
+        )
+    )
+
+    
+})
+
+const deleteUser = asyncHandler(async (req, res) => {
+    const { id } = req.user;
+
+    const deletedUser = await prisma.user.delete({
+        where: {
+            id
+        }
+    })
+
+    return res.status(200)
+        .json(
+            new ApiResponse(
+                200,
+                { deleted_user: deletedUser.username },
+                "User deleted successfully"
+        )
+    )
+})
+
+export { deleteUser, loginUser, profileDetails, registerUser, updateProfile, updateProfileImages };
 
