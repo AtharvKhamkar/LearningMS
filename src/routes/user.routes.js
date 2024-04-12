@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { deleteUser, loginUser, profileDetails, registerUser, updateProfile, updateProfileImages } from "../controllers/user.controller.js";
+import { deleteUser, loginUser, profileDetails, registerUser, updatePassword, updateProfile, updateProfileImages } from "../controllers/user.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
 
@@ -30,6 +30,7 @@ router.route("/profile-images").post(upload.fields([
         maxCount:1
     }
 ]), verifyJWT, updateProfileImages)
+router.route("/update-password").put(verifyJWT,upload.none(),updatePassword)
 router.route("/delete").delete(verifyJWT,deleteUser)
 
 export default router;

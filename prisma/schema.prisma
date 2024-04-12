@@ -44,6 +44,7 @@ model Course {
   description  String
   duration     CourseDuration
   price        Int?           @default(0)
+  published    Boolean        @default(false)
   ratings      Int?           @default(0)
   reviews      Int?           @default(0)
   createdAt    DateTime       @default(now())
@@ -68,7 +69,7 @@ model Content {
   description String?
   thumbnail   String?
   video       String?
-  duration    String?
+  duration    Int?
   views       Int?     @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

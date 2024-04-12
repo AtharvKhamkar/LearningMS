@@ -238,6 +238,44 @@ const updateProfileImages = asyncHandler(async (req, res) => {
     
 })
 
+const updatePassword = asyncHandler(async (req, res) => {
+    //get oldPassword & newPassword from user through req.body;
+    //get old hashed password from user through req.user
+    //compare oldPassword with its hashedPassword using bcrypt.compare
+    //If password is correct convert newPassword into hashed password and save into the database
+
+    const user = req.user;
+    const { oldPassword, newPassword } = req.body;
+  
+    
+    //check the oldPassword is correct or not
+    const isCorrect = await isPasswordCorrect(user, oldPassword);
+    if (!isCorrect) {
+        throw new ApiError(400, "Password is incorrect");
+    }
+    
+    //hash the newPassword
+    const encryptedPassword = await hashPassword(newPassword);
+
+    await prisma.user.update({
+        where: {
+            id: user.id
+        },
+        data: {
+            password:encryptedPassword
+        }
+    })
+
+    return res.status(200)
+        .json(
+            new ApiResponse(
+                200,
+                {},
+                "Password updated successfully"
+        )
+    )
+})
+
 const deleteUser = asyncHandler(async (req, res) => {
     const { id } = req.user;
 
@@ -257,5 +295,5 @@ const deleteUser = asyncHandler(async (req, res) => {
     )
 })
 
-export { deleteUser, loginUser, profileDetails, registerUser, updateProfile, updateProfileImages };
+export { deleteUser, loginUser, profileDetails, registerUser, updatePassword, updateProfile, updateProfileImages };
 

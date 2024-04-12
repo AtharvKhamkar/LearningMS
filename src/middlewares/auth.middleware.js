@@ -21,15 +21,6 @@ const verifyJWT = asyncHandler(async (req, res,next) => {
         const user = await prisma.user.findUnique({
             where: {
                 id:decodedToken?.id
-            },
-            select: {
-                id: true,
-                username: true,
-                fullname: true,
-                email: true,
-                avatar: true,
-                coverImage: true,
-                role:true
             }
         })
 
