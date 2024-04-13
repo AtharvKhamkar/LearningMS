@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addContent, getContent, updateContent } from "../controllers/content.controller.js";
+import { addContent, deleteContent, getContent, updateContent } from "../controllers/content.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { checkInstructor } from "../middlewares/checkInstructor.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
@@ -38,6 +38,7 @@ router.route("/instructor/update/:id").put(verifyJWT, upload?.fields([
         name: "thumbnail",
         maxCount:1
     }
-]),checkInstructor,updateContent)
+]), checkInstructor, updateContent)
+router.route("/instructor/delete/:id").delete(verifyJWT, checkInstructor, deleteContent);
 
 export default router;

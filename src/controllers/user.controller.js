@@ -295,5 +295,31 @@ const deleteUser = asyncHandler(async (req, res) => {
     )
 })
 
-export { deleteUser, loginUser, profileDetails, registerUser, updatePassword, updateProfile, updateProfileImages };
+const enrolledCourses = asyncHandler(async (req, res) => {
+    //get all enrolled courses
+    //pass user_id using req.user
+    //match in the enrollment table with user_id with provided user_id
+
+    const user = req.user;
+
+    const courses = await prisma.enrollment.findMany({
+        where: {
+            student_id:user.id
+        },
+        include: {
+            course: true
+        }
+    })
+
+    return res.status(200)
+        .json(
+            new ApiResponse(
+                200,
+                courses,
+                "Successfully fetched all the courses enrolled by user"
+        )
+    )
+})
+
+export { deleteUser, enrolledCourses, loginUser, profileDetails, registerUser, updatePassword, updateProfile, updateProfileImages };
 

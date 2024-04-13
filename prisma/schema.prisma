@@ -5,7 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
 }
 
 datasource db {
@@ -14,20 +15,21 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid())
+  id           String       @id @default(uuid())
   username     String
   fullname     String
-  email        String   @unique
+  email        String       @unique
   password     String
   avatar       String?
   coverImage   String?
-  role         UserRole @default(STUDENT)
+  role         UserRole     @default(STUDENT)
   refreshToken String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
   course       Course[]
   review       Review[]
   rating       Rating[]
+  enrollment   Enrollment[]
 }
 
 enum UserRole {
@@ -52,6 +54,7 @@ model Course {
   content      Content[]
   review       Review[]
   rating       Rating[]
+  enrollment   Enrollment[]
 }
 
 enum CourseDuration {
@@ -95,4 +98,16 @@ model Rating {
   stars     Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Enrollment {
+  id         String   @id @default(uuid())
+  student    User     @relation(fields: [student_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  student_id String
+  course     Course   @relation(fields: [course_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  course_id  String
+  startDate  DateTime @default(now())
+  endDate    DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

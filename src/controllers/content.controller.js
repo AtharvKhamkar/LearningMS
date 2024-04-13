@@ -124,5 +124,56 @@ const updateContent = asyncHandler(async (req, res) => {
     )
 })
 
-export { addContent, getContent, updateContent };
+const deleteContent = asyncHandler(async (req, res) => {
+    //get contentId from req.params
+    //only the instructor of that course can delete content in the course
+
+    const { id } = req.params;
+    const user = req.user;
+    
+    //check the content is available in the database
+    const checkContent = await prisma.content.findUnique({
+        where: {
+            id
+        },
+        include: {
+            course: {
+                select: {
+                    instructorId:true
+                }
+            }
+        }
+    });
+
+    if (!checkContent) {
+        throw new ApiError(400, "Content not found");
+    }
+    
+    //check whether the user is instructor of that course
+    if (user.id !== checkContent.course.instructorId) {
+        throw new ApiError(400, "You can not delete content in the course");
+    }
+    
+    //delete the content from that course
+    const deletedContent = await prisma.content.delete({
+        where: {
+            id
+        }
+    });
+
+    return res.status(200)
+        .json(
+            new ApiResponse(
+                200,
+                {
+                    deleted_content:deletedContent.title
+                },
+                "Successfully deleted content from course"
+        )
+    )
+
+    
+})
+
+export { addContent, deleteContent, getContent, updateContent };
 
