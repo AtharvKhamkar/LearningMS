@@ -29,12 +29,14 @@ import courseRoutes from "./routes/course.routes.js";
 import enrollmentRouter from "./routes/enrollment.routes.js";
 import reviewRouter from "./routes/review.routes.js";
 import userRoutes from "./routes/user.routes.js";
+import ratingRoutes from "./routes/rating.routes.js";
 
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/courses", courseRoutes);
 app.use("/api/v1/content", contentRouter);
 app.use("/api/v1/enrollment", enrollmentRouter);
 app.use("/api/v1/review", reviewRouter);
+app.use("/api/v1/rating", ratingRoutes);
 
 
 export default app;

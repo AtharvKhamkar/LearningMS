@@ -98,6 +98,8 @@ model Rating {
   stars     Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([course_id,user_id])            //composite unique constraint
 }
 
 model Enrollment {

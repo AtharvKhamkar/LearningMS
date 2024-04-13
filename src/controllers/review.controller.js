@@ -4,6 +4,65 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { checkEnrollment } from "../utils/review.functions.js";
 
+//transaction functions
+//function to add review and update reviews count in course table
+const addReview = async (courseId, userId, comment) => {
+    
+    //start the prisma transaction
+    const tx = await prisma.$transaction([
+        prisma.review.create({
+            data: {
+                course_id: courseId,
+                user_id: userId,
+                comment: comment
+            }
+        }),
+
+        //Increment the review count for the course
+        prisma.course.update({
+            where: {
+                id:courseId
+            },
+            data: {
+                reviews: {
+                    increment:1              //Increment count by 1 whenever the review is added
+                }
+            }
+        })
+    ])
+     
+    //Commit the the transaction
+    await tx;
+
+    return { success: true };
+}
+
+//function to delete review and decrement reviews count in course table
+const removeReview = async (courseId, reviewId) => {
+    //Starting the transaction
+    const tx = await prisma.$transaction([
+        prisma.review.delete({
+            where: {
+                id:reviewId
+            }
+        }),
+        prisma.course.update({
+            where: {
+                id:courseId
+            },
+            data: {
+                reviews: {
+                    decrement:1
+                }
+            }
+        })
+    ])
+
+    await tx;
+
+    return { success: true };
+}
+
 const reviewCourse = asyncHandler(async (req, res) => {
     //Only users who are enrolled for the course can make review
     //pass course_id through req.params
@@ -26,13 +85,9 @@ const reviewCourse = asyncHandler(async (req, res) => {
     }
 
     //If it is enrolled then make review
-    const makeReview = await prisma.review.create({
-        data: {
-            course_id,
-            user_id: user.id,
-            comment
-        }
-    })
+    const makeReview = await addReview(course_id, user.id, comment);
+
+
 
     return res.status(200)
         .json(
@@ -44,6 +99,35 @@ const reviewCourse = asyncHandler(async (req, res) => {
     )
 
 
+})
+
+const allReviews = asyncHandler(async (req, res) => {
+    const { course_id } = req.params;
+
+    const reviewList = await prisma.review.findMany({
+        where: {
+            course_id
+        },
+        include: {
+            user: {
+                select: {
+                    username: true,
+                    avatar:true
+                }
+            }
+        }
+    })
+
+    const reviewCount = reviewList.length;
+
+    return res.status(200)
+        .json(
+            new ApiResponse(
+                200,
+                {reviewList,reviewCount},
+                "Successfully fetched all the reviews"
+        )
+    )
 })
 
 const updateReview = asyncHandler(async (req, res) => {
@@ -87,21 +171,17 @@ const deleteReview = asyncHandler(async (req, res) => {
         throw new ApiError(400, "You can not delete the review");
     }
 
-    const removedReview = await prisma.review.delete({
-        where: {
-            id:review_id
-        }
-    })
+    const removedReview = await removeReview(course_id, review_id);
 
     return res.status(200)
         .json(
             new ApiResponse(
                 200,
-                { "deleted_review": removedReview.comment },
+                removedReview,
                 "review deleted successfully"
         )
     )
 })
 
-export { deleteReview, reviewCourse, updateReview };
+export { allReviews, deleteReview, reviewCourse, updateReview };
 
