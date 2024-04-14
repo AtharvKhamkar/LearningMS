@@ -2,6 +2,8 @@ import { Router } from "express";
 import { deleteUser, enrolledCourses, loginUser, profileDetails, registerUser, updatePassword, updateProfile, updateProfileImages } from "../controllers/user.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
+import { isValidated } from "../middlewares/validation.middleware.js";
+import { registrationSchema } from "../schemas/user.schemas.js";
 
 const router = Router();
 
@@ -15,7 +17,7 @@ router.route("/register").post(
             name: "coverImage",
             maxCount:1
         }
-    ]),
+    ]),isValidated(registrationSchema),
     registerUser)
 router.route("/login").put(loginUser)
 router.route("/profile").get(verifyJWT, profileDetails)

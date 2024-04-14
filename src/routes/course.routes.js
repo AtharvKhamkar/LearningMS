@@ -3,6 +3,8 @@ import { addCourse, allCourses, deleteCourse, getCourse, publishCourse, updateCo
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { checkInstructor } from "../middlewares/checkInstructor.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
+import { isValidated } from "../middlewares/validation.middleware.js";
+import { courseSchema } from "../schemas/course.schemas.js";
 
 const router = Router();
 
@@ -10,7 +12,7 @@ const router = Router();
 
 router.route("/").get(allCourses);
 router.route("/:id").get(getCourse);
-router.route("/add").post(upload.none(), verifyJWT, checkInstructor, addCourse);
+router.route("/add").post(upload.none(), verifyJWT, isValidated(courseSchema),checkInstructor, addCourse);
 router.route("/publish/:id").put(upload.none(), verifyJWT, checkInstructor, publishCourse);
 router.route("/update/:id").put(upload.none(), verifyJWT, checkInstructor, updateCourse);
 router.route("/delete/:id").delete(verifyJWT, checkInstructor, deleteCourse);

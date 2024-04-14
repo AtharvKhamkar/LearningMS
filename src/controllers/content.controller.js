@@ -4,6 +4,9 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { checkInstructorOfCourse } from "../utils/course.function.js";
+import { checkEnrollment } from "../utils/review.functions.js";
+
+
 
 const addContent = asyncHandler(async (req, res) => {
     //get courseId from req.params
@@ -57,6 +60,11 @@ const getContent = asyncHandler(async (req, res) => {
     const allContent = await prisma.content.findMany({
         where: {
             course_id
+        },
+        select: {
+            thumbnail: true,
+            title: true,
+            description:true
         }
     })
 
@@ -66,6 +74,52 @@ const getContent = asyncHandler(async (req, res) => {
                 200,
                 allContent,
                 "Successfully fetched content of the course"
+        )
+    )
+})
+
+const watchContent = asyncHandler(async (req, res) => {
+    /*
+        1. Only student enrolled for course can watch the content of the course
+        2. when student watches  content(video) of course then view count should be increased by 1
+        3. get course_id from req.params
+        4. get user_id from req.user
+        5. first check user is enrolled or not
+        6. If user is enrolled create transaction for getting video and updating the view count in course table
+        7. return result
+    */
+    
+    const { course_id } = req.body;
+    const { id } = req.params;
+    const user = req.user;
+
+    //check student is enrolled or not for the course
+    const isEnrolled = await checkEnrollment(user.id, course_id);
+    if (!isEnrolled) {
+        throw new ApiError(400, "You have not enrolled for this course");
+    }
+
+    //get content(video) link
+    const result = await prisma.content.update({
+        where: {
+            id
+        },
+        data: {
+            views: {
+                increment:1
+            }
+        }
+        
+    })
+
+    
+
+    return res.status(200)
+        .json(
+            new ApiResponse(
+                200,
+                result,
+                "Successfully fetched content"
         )
     )
 })
@@ -175,5 +229,5 @@ const deleteContent = asyncHandler(async (req, res) => {
     
 })
 
-export { addContent, deleteContent, getContent, updateContent };
+export { addContent, deleteContent, getContent, updateContent, watchContent };
 
