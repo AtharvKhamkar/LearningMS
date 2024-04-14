@@ -31,7 +31,8 @@ const addCourse = asyncHandler(async (req, res) => {
             title,
             description,
             duration,
-            price:Number(price)
+            price: Number(price),
+            published: Boolean(req.body?.published)
         }
     })
 
@@ -91,9 +92,43 @@ const publishCourse = asyncHandler(async (req, res) => {
 const allCourses = asyncHandler(async (req, res) => {
     //only published courses should be displayed
 
+    let page = Number(req.query.page || 1);
+    let limit = Number(req.query.limit || 5);
+    const search = req.query?.search;
+    const price = req.query?.price;
+    const rating = req.query?.rating;
+    const createdAt = req.query?.latest;
+
+    if (page <= 0) {
+        page = 1
+    }
+
+    if (limit <= 0 || limit >= 100) {
+        limit = 5
+    }
+
+    //make conditional array for sorting result
+    const orderBy = [];
+
+    //if courses order by price required then only it will give result
+    if (price) {
+        orderBy.push({ price: price });
+    }
+
+    if (rating) {
+        orderBy.push({ ratings: rating });
+    }
+
+    if (createdAt) {
+        orderBy.push({ createdAt: createdAt });
+    }
+
+
     const courses = await prisma.course.findMany({
         where: {
-            published:true
+            published: true,
+            ...(search?{description:{contains:search}}:{}),
+            
         },
         include: {
             instructor: {
@@ -101,14 +136,28 @@ const allCourses = asyncHandler(async (req, res) => {
                     fullname:true
                 }
             }
-        }
+        },
+        orderBy: orderBy,
+        skip: limit * (page - 1),
+        take:limit
     })
+
+    const totalCourses = await prisma.course.count();
+    const totalPages = Math.ceil(totalCourses / limit);
 
     return res.status(200)
         .json(
             new ApiResponse(
                 200,
-                courses,
+                {
+                    courses,
+                    meta: {
+                        totalCourses,
+                        totalPages,
+                        currentPage: page,
+                        limit
+                    }
+                },
                 "Successfully fetched all courses"
         )
     )

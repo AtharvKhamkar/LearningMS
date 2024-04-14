@@ -33,8 +33,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
     let [avatar, coverImage] = await Promise.all([uploadOnCloudinary(avatarLocalPath), uploadOnCloudinary(coverLocalPath)]);
 
-    console.log(avatar.url);
-    console.log(coverImage.url)
+    
 
  
     const registeredUser = await prisma.user.create({
