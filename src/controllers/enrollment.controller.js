@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { checkInstructorOfCourse } from "../utils/course.function.js";
+import { welcomeEmail, withdrawEnrollmentEmail } from "../utils/email.function.js";
 import { calculateEndDate } from "../utils/enrollment.function.js";
 
 
@@ -50,6 +51,10 @@ const enrollStudent = asyncHandler(async (req, res) => {
         }
     })
 
+    console.log(user.email);
+
+    await welcomeEmail(user.email,user.username,enrolledCourse.title);
+
     return res.status(200)
         .json(
             new ApiResponse(
@@ -76,6 +81,7 @@ const withdrawEnrollment = asyncHandler(async (req, res) => {
         }
     });
 
+
     const deletedEnrollment = await prisma.enrollment.delete({
         where: {
             id:enrollmentDetails.id
@@ -88,6 +94,10 @@ const withdrawEnrollment = asyncHandler(async (req, res) => {
     if (!deletedEnrollment) {
         throw new ApiError(400, `You have not enrolled for ${course_id} course`);
     }
+
+    await withdrawEnrollmentEmail(user.email,user.username,enrollmentDetails.course_id);
+
+
 
     return res.status(200)
         .json(
