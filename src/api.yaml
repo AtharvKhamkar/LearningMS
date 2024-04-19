@@ -1,0 +1,1082 @@
+openapi: 3.0.0
+info:
+  title: LearningMS
+  description: >-
+    API documentation for the Learning Management System (LMS) built using
+    Node.js and PostgreSQL.
+  version: 1.0.0
+servers:
+  - url: 'http://localhost:1717'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+    noauthAuth:
+      type: http
+      scheme: noauth
+tags:
+  - name: User
+    description: >-
+      Contains all the endpoints related to user registration,login,profile,My
+      courses, update profile, update cover & avatar Images, Change password,
+      delete profile
+  - name: Courses
+    description: >-
+      Contains all the endpoints related to courses like fetching courses,
+      enrolling to course, adding courses etc.
+  - name: Content
+    description: >-
+      Contains all the endpoint related to content. Instructor can add , update,
+      delete content.
+  - name: Content > Intructor
+  - name: Content > Student
+  - name: Enrollment
+    description: >-
+      Contains all the endpoints related to enrollment. User can enroll to
+      course withdraw enrollment, Instructor can see all enrolled courses etc.
+  - name: Enrollment > Intructor
+  - name: Enrollment > Student
+  - name: Review
+    description: >-
+      Contains all the endpoints related to add , update , get reviews for a
+      course.
+  - name: Ratings
+    description: >-
+      Contains all the endpoints related to add , update , delete , get ratings
+      for a specific course.
+paths:
+  /api/v1/user/register:
+    post:
+      tags:
+        - User
+      summary: Register User
+      description: >-
+        This endpoint allow users to register for the Learning Management
+        System(LearningMS). Upon successful registration, a new user account
+        will be created.User need to provides his/her username , fullname ,
+        email , password, rol these are required fields. User can also add
+        avatar image, coverImage.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: sanketsawant
+                fullname:
+                  type: string
+                  example: Sanket Sawant
+                email:
+                  type: string
+                  example: sanketsawant2002@gmail.com
+                password:
+                  type: string
+                  example: sanket123
+                avatar:
+                  type: string
+                  format: binary
+                coverImage:
+                  type: string
+                  format: binary
+                role:
+                  type: string
+                  example: STUDENT
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v1/user/login:
+    put:
+      tags:
+        - User
+      summary: Login User
+      description: >-
+        This endpoint allows users to log in to the Learning Management System
+        (LMS) using their email and password credentials.
+
+
+        Upon successful authentication, the user will be granted access to their
+        account.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: sanketsawant2002@gmail.com
+                password:
+                  type: string
+                  example: sanket123
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v1/user/profile:
+    get:
+      tags:
+        - User
+      summary: Profile
+      description: >-
+        This endpoint allows users to retrieve their own profile information
+        from the Learning Management System (LMS).
+
+
+        Users need to provide their access token in the request to authenticate.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /email/test:
+    get:
+      tags:
+        - User
+      summary: Test Email
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v1/user/my-courses:
+    get:
+      tags:
+        - User
+      summary: My Courses
+      description: >-
+        This endpoint allow users to check details of all enrolled courses.
+
+
+        User can check all the detail of enrolled courses with course staring
+        and ending date.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v1/user/update-profile:
+    put:
+      tags:
+        - User
+      summary: Update Profile
+      description: >-
+        This endpoint allow user to update his/her profile. User can change
+        username , fullName, email and role.
+
+
+        User just need to pass accessToken with request for authentication.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: sanketsawant
+                fullname:
+                  type: string
+                  example: Sanket Santosh Sawant
+                email:
+                  type: string
+                  example: sanketsawant2002@gmail.com
+                role:
+                  type: string
+                  example: STUDENT
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v1/user/profile-images:
+    post:
+      tags:
+        - User
+      summary: Profile Images
+      description: |-
+        This endpoint allow user to update his/her avatar image and coverImage.
+
+        User just need to send accessToken with the request for authentication.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+                coverImage:
+                  type: string
+                  format: binary
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v1/user/update-password:
+    put:
+      tags:
+        - User
+      summary: Update Password
+      description: >-
+        This endpoint allow users to update password. User need to provide
+        correct old password and new password.
+
+
+        User should provide accessToken with request for authentication.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                oldPassword:
+                  type: string
+                  example: sanket123
+                newPassword:
+                  type: string
+                  example: sanket12345
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v1/user/delete:
+    delete:
+      tags:
+        - User
+      summary: Detete User
+      description: |-
+        This endpoint allow users to delete his/her profile from the system.
+
+        User need to provide accessToken with the request for authentication.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v1/courses/:
+    get:
+      tags:
+        - Courses
+      summary: All Courses
+      description: >-
+        This endpoint allow user to see all the available courses in our
+        app.User can filter these courses according to search, price, rating,
+        latest options.
+
+
+        In this request just need to send page and limit as a query parameter
+        according to these courses are displayed.
+      security:
+        - noauthAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+          example: '1'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          example: '5'
+        - name: search
+          in: query
+          schema:
+            type: string
+          example: Node.js
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  '/api/v1/courses/{id}':
+    get:
+      tags:
+        - Courses
+      summary: Get Course
+      description: |-
+        This end point allow user to fetch or see some specific course details.
+
+        User just need to send courseId with the query parameter.
+      security:
+        - noauthAuth: []
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 2ebc89c6-75f6-4b5a-9d34-057ac8be1088
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v1/courses/add:
+    post:
+      tags:
+        - Courses
+      summary: Add Course
+      description: >-
+        This endpoint allow user to publish a course into our platform.but
+        user's role should be INSTRUCTOR or ADMIN then only he/she can add
+        course.
+
+
+        To add course user just need to pass title, description, duration and
+        price of the course.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: >-
+                    Mastering Full-Stack Web Development with MERN Stack: A
+                    Comprehensive Guide
+                description:
+                  type: string
+                  example: >-
+                    Dive into the world of full-stack web development with our
+                    comprehensive course on mastering the MERN (MongoDB,
+                    Express.js, React, Node.js) stack. From front-end to
+                    back-end, you'll learn everything you need to know to build
+                    modern, scalable web applications. Through step-by-step
+                    tutorials and real-world examples, you'll design elegant
+                    user interfaces with React, create powerful RESTful APIs
+                    with Express.js and Node.js, and seamlessly integrate them
+                    with MongoDB for database storage. Whether you're a beginner
+                    or an experienced developer, this course will empower you to
+                    architect, develop, and deploy full-stack web applications
+                    with confidence, revolutionizing your development workflow
+                    and opening doors to exciting career opportunities.
+                duration:
+                  type: string
+                  example: ONE_MONTH
+                price:
+                  type: integer
+                  example: '5000'
+                published:
+                  type: integer
+                  example: '1'
+                ratings:
+                  type: integer
+                  example: '1'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  '/api/v1/courses/update/{id}':
+    put:
+      tags:
+        - Courses
+      summary: Update Course
+      description: >-
+        This end point allow users to update course details. User can change
+        course name, description, course duration, course price.
+
+
+        User just need be INSTRUCTOR or ADMIN then only user can add course or
+        update course
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Master full stack web developement
+                description:
+                  type: string
+                duration:
+                  type: string
+                  example: THREE_MONTHS
+                price:
+                  type: string
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: cac3a8b7-7907-469c-932c-2ea15e863ca2
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  '/api/v1/courses/delete/{id}':
+    delete:
+      tags:
+        - Courses
+      summary: Delete Course
+      description: >-
+        This end point allow user to delete course.Thus course can only be
+        deleted by course's INSTRUCTOR and ADMIN.
+
+
+        User should pass courseId with request parameters
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: cac3a8b7-7907-469c-932c-2ea15e863ca2
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  '/api/v1/courses/publish/{id}':
+    put:
+      tags:
+        - Courses
+      summary: Publish Course
+      description: >-
+        This endpoint allow user to publish newly created course on our
+        platform.While creating the course by default course  is not published.
+
+
+        While publishing course user need to send courseID and accessToken with
+        request.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties: {}
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: cac3a8b7-7907-469c-932c-2ea15e863ca2
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  '/api/v1/content/instructor/add/{course_id}':
+    post:
+      tags:
+        - Content > Intructor
+      summary: Add Content
+      description: >-
+        This endpoint allow user to add content in the respective course.Only
+        INSTRUCTOR can add content in the course.Instructor need to provide
+        title, description, video and thumbnail. After that content is added in
+        the course.
+
+
+        User also need to provide courseId and accessToken with the request.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Understand redux vs context API
+                description:
+                  type: string
+                  example: >-
+                    Redux vs. Context API: Understand the key differences. Get
+                    clarity on when to use each for state management in your
+                    React applications.
+                video:
+                  type: string
+                  format: binary
+                thumbnail:
+                  type: string
+                  format: binary
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: course_id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: c34bf93f-3df1-4b27-bd09-4d01a6a27e88
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  '/api/v1/content/instructor/update/{id}':
+    put:
+      tags:
+        - Content > Intructor
+      summary: Update Content
+      description: >-
+        This endpoint allow user to update the content of course.Only INSTRUCTOR
+        can update content in the course.
+
+
+        User need to provide accessToken and contentID with the request.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: First topic
+                description:
+                  type: string
+                  example: Description of the first topic
+                course_id:
+                  type: string
+                  example: 6a4795b2-dc1b-4dc8-8e01-71e7b2380fa5
+                video:
+                  type: string
+                  format: binary
+                thumbnail:
+                  type: string
+                  format: binary
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: cd3f4396-d91c-4902-97bf-7211a1c1d671
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  '/api/v1/content/instructor/delete/{id}':
+    delete:
+      tags:
+        - Content > Intructor
+      summary: Delete Content
+      description: >-
+        This endpoint allow user to delete content from the course. Only
+        INSTRUCTOR can delete the content in his course.
+
+
+        For deletion user just need to pass contentId and accessToken for
+        authentication.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: cd3f4396-d91c-4902-97bf-7211a1c1d671
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  '/api/v1/content/instructor/{course_id}':
+    get:
+      tags:
+        - Content > Intructor
+      summary: Get Content
+      description: >-
+        This endpoint allow users to see all the content in the course.But user
+        can not watch the content in the course.
+
+
+        User need to pass courseId and accessToken for authentication.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: course_id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 6a4795b2-dc1b-4dc8-8e01-71e7b2380fa5
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  '/api/v1/content/student/watch/{id}':
+    put:
+      tags:
+        - Content > Student
+      summary: Get Content
+      description: >-
+        This endpoint allow user to watch content in the course.User can watch
+        only specific content in the course.But only users that have enrolled
+        for the course can watch the content.
+
+
+        User need to pass courseId and accessToken as a parameter with the
+        request.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                course_id:
+                  type: string
+                  example: 2ebc89c6-75f6-4b5a-9d34-057ac8be1088
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 2f385b5a-e1a6-4cf0-bf87-0b1d6c248a14
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  '/api/v1/content/student/{course_id}':
+    get:
+      tags:
+        - Content > Student
+      summary: Watch Content
+      description: >-
+        This endpoint allow user to see all the content in the respective
+        course.But user  should be enrolled for the course.
+
+
+        User need to pass courseId and accessToken as a parameter with the
+        request.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: course_id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 6a4795b2-dc1b-4dc8-8e01-71e7b2380fa5
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  '/api/v1/enrollment/instructor/all/{course_id}':
+    get:
+      tags:
+        - Enrollment > Intructor
+      summary: All Enrolled Students
+      description: >-
+        This endpoint allow user to see all enrolled student in a particular
+        course.only INSTRUCTOR can see the student that are enrolled for his
+        course.
+
+
+        User need to pass courseID and accessToken as a parameter.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: course_id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: c34bf93f-3df1-4b27-bd09-4d01a6a27e88
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  '/api/v1/enrollment/instructor/search-student/{course_id}':
+    get:
+      tags:
+        - Enrollment > Intructor
+      summary: Search Enrolled Student
+      description: >-
+        This endpoint allow user to search a specific enrolled student with
+        name. User just need to pass name of student that user want to search.
+
+        Only INSTRUCTOR  can search enrolled student.
+
+
+        User just need to pass name of the enrolled student as query and
+        courseID and accessToken as a parameter.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: query
+          in: query
+          schema:
+            type: string
+          example: Atharv
+        - name: course_id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 2ebc89c6-75f6-4b5a-9d34-057ac8be1088
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  '/api/v1/enrollment/instructor/remove/{course_id}':
+    delete:
+      tags:
+        - Enrollment > Intructor
+      summary: Remove Enrollment
+      description: >-
+        This endpoint allow user to remove enrollment of the student. But User
+        must be INSTRUCTOR of that course then only he/she can remove enrolled
+        student.
+
+
+        For deleting enrollment user need to send enrollment_id of student then
+        enrollment will be deleted.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: course_id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 6a4795b2-dc1b-4dc8-8e01-71e7b2380fa5
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  '/api/v1/enrollment/student/withdraw/{course_id}':
+    delete:
+      tags:
+        - Enrollment > Student
+      summary: Withdraw Enrollment
+      description: >-
+        This endpoint allow user to withdraw enrollment from the course.First
+        user should be enrolled in the course then only user can withdraw
+        his/her enrollment.
+
+
+        User need to pass course_id and accessToken as a parameter.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: course_id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: bf90a2ba-e786-4743-9e65-4629f61566c7
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  '/api/v1/enrollment/student/{course_id}':
+    post:
+      tags:
+        - Enrollment > Student
+      summary: Add Enrollment
+      description: >-
+        This endpoint allow user to enroll for a specific course.For enrollment
+        user must be STUDENT.after that user will be enrolled for that course.
+
+
+        User need to pass courseId and accessToken as a parameter.
+      requestBody:
+        content: {}
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: course_id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: bf90a2ba-e786-4743-9e65-4629f61566c7
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  '/api/v1/review/add/{course_id}':
+    post:
+      tags:
+        - Review
+      summary: Add Review
+      description: >-
+        This endpoint allow user to add Review for a specific course.To add
+        review for a course user must be enrolled for that course then only user
+        can add review.After that user will be added.
+
+
+        User need to pass courseId and accessToken as a parameter.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: string
+                  example: Average Course.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: course_id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: c34bf93f-3df1-4b27-bd09-4d01a6a27e88
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  '/api/v1/review/all/{course_id}':
+    get:
+      tags:
+        - Review
+      summary: All Reviews
+      description: |-
+        This endpoint allow users to check all the reviews of a course.
+
+        User need to pass to courseID and accessToken as a parameter.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: course_id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: 2ebc89c6-75f6-4b5a-9d34-057ac8be1088
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  '/api/v1/review/update/{course_id}':
+    put:
+      tags:
+        - Review
+      summary: Update Review
+      description: >-
+        This endpoint allow user to update posted review for specific
+        course.Only user that had posted review can update the review.
+
+
+        User need to pass courseId and accessToken as a paramter.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: string
+                  example: Excelled course
+                review_id:
+                  type: string
+                  example: 4b85b7f5-966f-4b2d-b6ea-12426e1c745f
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: course_id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: a66c19f4-f249-4f52-ac3b-59bbc90aed96
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  '/api/v1/review/delete/{course_id}':
+    delete:
+      tags:
+        - Review
+      summary: Delete Review
+      description: >-
+        This endpoint allow user to delete posted review.Only the user that have
+        enrolled for the course and posted review can delete review.
+
+
+        User need to pass course_id and accessToken as a parameter.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: course_id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: a66c19f4-f249-4f52-ac3b-59bbc90aed96
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  '/api/v1/rating/add/{course_id}':
+    post:
+      tags:
+        - Ratings
+      summary: Add Ratings
+      description: >-
+        This endpoint allow user to add rating for a course.Only the enrolled
+        student can give rating for the course.The rating is in between 1 to 5
+        stars.
+
+
+        User need to pass courseId and accessToken as a parameter.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                stars:
+                  type: integer
+                  example: '3'
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: course_id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: c34bf93f-3df1-4b27-bd09-4d01a6a27e88
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    put:
+      tags:
+        - Ratings
+      summary: Update Ratings
+      description: >-
+        This endpoint allow user to update posted review. Only the users that
+        have enrolled for the course and posted rating can updated rating.
+
+
+        User need to pass course_id and accessToken as a parameter.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: string
+                  example: Excelled course
+                review_id:
+                  type: string
+                  example: 4b85b7f5-966f-4b2d-b6ea-12426e1c745f
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: course_id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: a66c19f4-f249-4f52-ac3b-59bbc90aed96
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  '/api/v1/rating/all/{course_id}':
+    get:
+      tags:
+        - Ratings
+      summary: All Ratings
+      description: >-
+        This endpoint allow users to see all the ratings for a specific
+        course.All user can see the rating of all courses.
+
+
+        User need to pass just accessToken and courseId as a parameter.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: course_id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: c34bf93f-3df1-4b27-bd09-4d01a6a27e88
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  '/api/v1/rating/delete/{course_id}':
+    delete:
+      tags:
+        - Ratings
+      summary: Delete Ratings
+      description: >-
+        This endpoint allow users to delete posted rating. Users that have
+        posted review and enrolled for the course can only delete rating.
+
+
+        User need to pass accessToken and courseId as a parameter.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: course_id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: a66c19f4-f249-4f52-ac3b-59bbc90aed96
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}

@@ -19,7 +19,7 @@ router.route("/register").post(
         }
     ]),isValidated(registrationSchema),
     registerUser)
-router.route("/login").put(loginUser)
+router.route("/login").put(upload.none(),loginUser)
 router.route("/profile").get(verifyJWT, profileDetails)
 router.route("/update-profile").put(verifyJWT,upload.none(),updateProfile)
 router.route("/profile-images").post(upload.fields([
