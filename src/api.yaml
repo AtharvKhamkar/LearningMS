@@ -7,8 +7,8 @@ info:
   version: 1.0.0
 servers:
   - url: 'http://{{server}}'
-  - url: 'http://localhost:1717'
-  - url: 'https://learningms.onrender.com'
+  - url: 'http://localhost:1717/api/v1'
+  - url: 'https://learningms.onrender.com/api/v1'
   - url: 'http://{{local}}'
 components:
   securitySchemes:
